@@ -6,16 +6,21 @@ import {
   Param,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { UpdateAccountDto } from './dto/update-account.dto';
 import { ApiPaginatedResponse } from '../common/decorator/api-pagination-response.decorator';
 import { AccountDto } from './dto/account.dto';
-import { ApiOkResponse, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiResponse } from '@nestjs/swagger';
 import { Auth } from '../auth/decorator/auth.decorator';
 import { UserDto } from '../user/dto/user.dto';
+import { AuthGuard } from '../auth/guard/auth.guard';
+import { RoleGuard } from '../auth/guard/role.guard';
 
+@UseGuards(AuthGuard, RoleGuard)
+@ApiBearerAuth()
 @Controller('account')
 export class AccountController {
   constructor(private readonly accountService: AccountService) {}

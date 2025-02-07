@@ -5,10 +5,17 @@ import { DatabaseModule } from '../database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Chat } from '../database/entity/chat.entity';
 import { AccountModule } from '../account/account.module';
+import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [DatabaseModule, TypeOrmModule.forFeature([Chat]), AccountModule],
+  imports: [
+    DatabaseModule,
+    TypeOrmModule.forFeature([Chat]),
+    AccountModule,
+    UserModule,
+  ],
   controllers: [ChatController],
   providers: [ChatService],
+  exports: [ChatService],
 })
 export class ChatModule {}

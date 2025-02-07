@@ -1,21 +1,30 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { AccountDto } from '../../account/dto/account.dto';
 import { Chat } from '../../database/entity/chat.entity';
 
 export class ChatDto {
+  @ApiProperty()
   public id: string;
 
+  @ApiProperty()
   public title: string;
 
+  @ApiProperty()
   public description: string;
 
+  @ApiProperty()
   public isPublic: boolean;
 
+  @ApiProperty()
   public createdAt: Date;
 
+  @ApiProperty()
   public updatedAt: Date;
 
+  @ApiProperty({ type: AccountDto })
   public owner: AccountDto;
 
+  @ApiProperty({ type: AccountDto, isArray: true })
   public accounts: AccountDto[];
 
   constructor(chat: Chat) {

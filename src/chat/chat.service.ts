@@ -127,6 +127,7 @@ export class ChatService {
 
   async findAllPrivateChats(
     pagination: PaginationDto,
+    auth: UserDto,
   ): Promise<PaginationDataResponseDto<ChatDto>> {
     try {
       const skip = (pagination.pageNumber - 1) * pagination.pageSize;
@@ -142,9 +143,10 @@ export class ChatService {
         skip: skip,
         take: pagination.pageSize,
         order,
-        where: {
-          isPublic: false,
-        },
+        where: [
+          { isPublic: false, owner: auth.account },
+          { isPublic: false, accounts: [{ id: auth.account.id }] },
+        ],
       });
 
       return new PaginationDataResponseDto<ChatDto>(
@@ -234,6 +236,34 @@ export class ChatService {
       });
 
       return new ChatDto(updatedChat);
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async deleteChatById(id: string): Promise<void> {
+    try {
+      const chat = await this.chatRepository.findOne({ where: { id } });
+
+      if (!chat) throw new NotFoundException('Chat not found');
+
+      await this.chatRepository.delete(chat);
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async deleteChatByAuth(auth: UserDto, id: string): Promise<void> {
+    try {
+      const chat = await this.chatRepository.findOne({
+        where: { id, owner: { id: auth.id } },
+      });
+
+      if (!chat) throw new NotFoundException('Chat not found');
+
+      await this.chatRepository.delete(chat);
     } catch (error) {
       this.logger.log(error);
       throw new InternalServerErrorException(error);

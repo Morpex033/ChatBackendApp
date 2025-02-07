@@ -9,10 +9,10 @@ export class Message {
   public senderId: string;
 
   @Prop({ required: true })
-  public receiverId: string;
+  public receiverId: string[];
 
   @Prop({ required: true })
-  public chartId: string;
+  public chatId: string;
 
   @Prop({ required: true })
   public content: string;
