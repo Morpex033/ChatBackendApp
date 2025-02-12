@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Account } from '../database/entity/account.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { AccountDto } from './dto/account.dto';
 import { PaginationDataResponseDto } from '../common/dto/pagination-data-response.dto';
@@ -166,9 +166,14 @@ export class AccountService {
   async createAccount(
     userId: string,
     account: CreateAccountDto,
+    manager?: EntityManager,
   ): Promise<AccountDto> {
     try {
-      const existAccount = await this.accountRepository.findOne({
+      const repo = manager
+        ? manager.getRepository(Account)
+        : this.accountRepository;
+
+      const existAccount = await repo.findOne({
         where: { username: account.username },
       });
 
@@ -178,10 +183,10 @@ export class AccountService {
         );
       }
 
-      const user = await this.userService.findUserById(userId);
+      const user = await this.userService.findUserById(userId, manager);
 
       return new AccountDto(
-        await this.accountRepository.save({
+        await repo.save({
           ...account,
           user: { id: user.id },
         }),

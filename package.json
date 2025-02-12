@@ -25,8 +25,8 @@
     "typeorm:revert-migration": "npm run typeorm -- -d ./src/database/database.provider.ts migration:revert"
   },
   "dependencies": {
-    "@nestjs/common": "^11.0.1",
-    "@nestjs/core": "^11.0.1",
+    "@nestjs/common": "^11.0.8",
+    "@nestjs/core": "^11.0.8",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/mapped-types": "*",
     "@nestjs/mongoose": "^11.0.0",
@@ -34,7 +34,7 @@
     "@nestjs/platform-socket.io": "^11.0.6",
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
-    "@nestjs/websockets": "^11.0.6",
+    "@nestjs/websockets": "^11.0.9",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

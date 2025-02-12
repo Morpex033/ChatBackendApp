@@ -6,6 +6,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AccountModule } from './account/account.module';
 import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
+import { MessageModule } from './message/message.module';
+import { WsChatModule } from './websocket/chat/ws-chat.module';
 dotenvConfig({ path: '.env' });
 
 @Module({
@@ -16,6 +18,8 @@ dotenvConfig({ path: '.env' });
     AccountModule,
     ChatModule,
     AuthModule,
+    MessageModule,
+    WsChatModule,
   ],
   controllers: [],
   providers: [],
