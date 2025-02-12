@@ -13,7 +13,8 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationDataResponseDto } from '../common/dto/pagination-data-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -24,9 +25,11 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async findUserById(id: string): Promise<UserDto> {
+  async findUserById(id: string, manager?: EntityManager): Promise<UserDto> {
     try {
-      const user = await this.userRepository.findOne({
+      const repo = manager ? manager.getRepository(User) : this.userRepository;
+
+      const user = await repo.findOne({
         where: { id },
         relations: { account: true },
       });
@@ -97,6 +100,10 @@ export class UserService {
         throw new ConflictException('User with this email already exists');
       }
 
+      const hash = await bcrypt.hash(user.password, 8);
+
+      user.password = hash;
+
       const updatedUser = await this.userRepository.save({
         ...existUser,
         ...user,
@@ -114,6 +121,10 @@ export class UserService {
       if (await this.userRepository.findOne({ where: { email: user.email } })) {
         throw new ConflictException('User with this email already exists');
       }
+
+      const hash = await bcrypt.hash(user.password, 8);
+
+      user.password = hash;
 
       const updatedUser = await this.userRepository.save({
         ...auth,
@@ -140,16 +151,21 @@ export class UserService {
     }
   }
 
-  async createUser(user: CreateUserDto): Promise<UserDto> {
+  async createUser(
+    user: CreateUserDto,
+    manager?: EntityManager,
+  ): Promise<UserDto> {
     try {
-      const existUser = await this.userRepository.findOne({
+      const repo = manager ? manager.getRepository(User) : this.userRepository;
+
+      const existUser = await repo.findOne({
         where: { email: user.email },
       });
 
       if (existUser)
         throw new BadRequestException('The email is already registered');
 
-      return new UserDto(await this.userRepository.save(user));
+      return new UserDto(await repo.save(user));
     } catch (error) {
       this.logger.log(error);
       throw new InternalServerErrorException(error);

@@ -31,7 +31,7 @@ export class ChatController {
 
   @ApiResponse({ type: ChatDto })
   @Post('/public')
-  public createPublicChat(@Auth() auth: UserDto, dto: CreateChatDto) {
+  public createPublicChat(@Auth() auth: UserDto, @Body() dto: CreateChatDto) {
     return this.chatService.createPublicChat(auth, dto);
   }
 

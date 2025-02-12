@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -15,6 +14,8 @@ import { JwtService } from '@nestjs/jwt';
 import { AccessRefreshResponseDto } from './dto/access-refresh-response.dto';
 import { AccessTokenResponseDto } from './dto/access-token-response.dto';
 import { JwtPayload } from './interface/jwt-payload.interface';
+import { DataSource, EntityManager } from 'typeorm';
+import { UserDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -24,31 +25,37 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly accountService: AccountService,
     private readonly jwtService: JwtService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async singUp(singUpDto: SingUpDto): Promise<SingUpResponseDto> {
     try {
-      const passwordHash = await bcrypt.hash(singUpDto.user.password, 8);
+      return await this.dataSource.transaction(
+        async (manager: EntityManager) => {
+          const passwordHash = await bcrypt.hash(singUpDto.user.password, 8);
 
-      const newUser = await this.userService.createUser({
-        ...singUpDto.user,
-        password: passwordHash,
-      });
+          const newUser = await this.userService.createUser(
+            {
+              ...singUpDto.user,
+              password: passwordHash,
+            },
+            manager,
+          );
 
-      try {
-        const account = await this.accountService.createAccount(
-          newUser.id,
-          singUpDto.account,
-        );
+          try {
+            const account = await this.accountService.createAccount(
+              newUser.id,
+              singUpDto.account,
+              manager,
+            );
 
-        return { account, user: newUser } as SingUpResponseDto;
-      } catch (error) {
-        this.logger.log(error);
-        await this.userService.deleteUser(newUser.id);
-        throw new ConflictException(
-          'Account with this username already exists',
-        );
-      }
+            return { account, user: newUser } as SingUpResponseDto;
+          } catch (error) {
+            this.logger.log(error);
+            throw new InternalServerErrorException('Account creation failed');
+          }
+        },
+      );
     } catch (error) {
       this.logger.log(error);
       throw new InternalServerErrorException(error);
@@ -112,6 +119,21 @@ export class AuthService {
       );
 
       return { accessToken } as AccessTokenResponseDto;
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async validateToken(token: string): Promise<UserDto> {
+    try {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: process.env.JWT_ACCESS_SECRET,
+      });
+
+      const user = await this.userService.findUserById(payload.id);
+
+      return user;
     } catch (error) {
       this.logger.log(error);
       throw new InternalServerErrorException(error);

@@ -18,7 +18,7 @@ import { AccountRole } from '../user/enum/account-role.enum';
 @Injectable()
 export class MessageService {
   private readonly logger = new Logger(MessageService.name);
-  
+
   constructor(
     @InjectModel(Message.name) private messageModel: Model<MessageDocument>,
     private readonly chatService: ChatService,
@@ -31,9 +31,10 @@ export class MessageService {
   ): Promise<MessageDto> {
     try {
       const chat = await this.chatService.findChatById(chatId);
+
       if (
-        !chat.accounts.includes(auth.account) ||
-        chat.owner !== auth.account
+        !chat.accounts.some((acc) => acc.id === auth.account.id) ||
+        chat.owner.id !== auth.account.id
       ) {
         throw new BadRequestException(`User not member in ${chat.title} chat`);
       }
@@ -55,6 +56,10 @@ export class MessageService {
   async findAllMessages(): Promise<MessageDto[]> {
     try {
       const messages = await this.messageModel.find().exec();
+
+      if (messages.length === 0) {
+        throw new NotFoundException('Messages not found');
+      }
 
       return messages.map((message) => new MessageDto(message));
     } catch (error) {
@@ -79,6 +84,7 @@ export class MessageService {
   async findMessageBySenderId(senderId: string): Promise<MessageDto[]> {
     try {
       const messages = await this.messageModel.find({ senderId }).exec();
+
       return messages.map((message) => new MessageDto(message));
     } catch (error) {
       this.logger.log(error);
@@ -89,6 +95,23 @@ export class MessageService {
   async findMessageByChatId(chatId: string): Promise<MessageDto[]> {
     try {
       const messages = await this.messageModel.find({ chatId }).exec();
+
+      return messages.map((message) => new MessageDto(message));
+    } catch (error) {
+      this.logger.log(error);
+      throw new InternalServerErrorException(error);
+    }
+  }
+
+  async findMessageByChatAndSenderId(
+    chatId: string,
+    senderId: string,
+  ): Promise<MessageDto[]> {
+    try {
+      const messages = await this.messageModel
+        .find({ chatId, senderId })
+        .exec();
+
       return messages.map((message) => new MessageDto(message));
     } catch (error) {
       this.logger.log(error);
@@ -102,8 +125,12 @@ export class MessageService {
     updatedMessage: UpdateMessageDto,
   ): Promise<MessageDto> {
     try {
-      if (updatedMessage.senderId !== auth.account.id) {
-        throw new BadRequestException('You not sender');
+      const existsMessage = await this.messageModel.findById(id).exec();
+
+      if (!existsMessage) throw new NotFoundException('Message not found');
+
+      if (existsMessage.senderId !== auth.account.id) {
+        throw new BadRequestException('User not sender');
       }
 
       const message = await this.messageModel

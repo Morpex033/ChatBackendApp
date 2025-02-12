@@ -32,6 +32,7 @@ export class ChatService {
           ...chat,
           owner: auth.account,
           isPublic: true,
+          accounts: [auth.account],
         }),
       );
     } catch (error) {
@@ -51,7 +52,7 @@ export class ChatService {
           ...chat,
           owner: auth.account,
           isPublic: false,
-          accounts: [{ id: accountId }],
+          accounts: [{ id: accountId }, auth.account],
         }),
       );
     } catch (error) {
@@ -248,7 +249,7 @@ export class ChatService {
 
       if (!chat) throw new NotFoundException('Chat not found');
 
-      await this.chatRepository.delete(chat);
+      await this.chatRepository.delete(chat.id);
     } catch (error) {
       this.logger.log(error);
       throw new InternalServerErrorException(error);

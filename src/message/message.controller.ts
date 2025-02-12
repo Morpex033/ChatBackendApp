@@ -52,6 +52,15 @@ export class MessageController {
     return this.messageService.findMessageByChatId(id);
   }
 
+  @ApiResponse({ type: MessageDto, isArray: true })
+  @Get('/chat/:chatId/sender/:senderId')
+  public getMessagesByChatAndSenderId(
+    @Param('chatId') chatId: string,
+    @Param('senderId') senderId: string,
+  ) {
+    return this.messageService.findMessageByChatAndSenderId(chatId, senderId);
+  }
+
   @ApiResponse({ type: MessageDto })
   @Put('/:id')
   public updateMessage(
