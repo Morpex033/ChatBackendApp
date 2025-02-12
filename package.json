@@ -35,12 +35,15 @@
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/typeorm": "^11.0.0",
     "@nestjs/websockets": "^11.0.9",
+    "args": "^5.0.3",
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "commander": "^13.1.0",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "migrate-mongo": "^11.0.0",
+    "minimist": "^1.2.8",
     "mongodb": "^5.9.2",
     "mongoose": "^8.9.5",
     "pg": "^8.13.1",
@@ -48,7 +51,8 @@
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "swagger-ui-express": "^5.0.1",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "yargs": "^17.7.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
