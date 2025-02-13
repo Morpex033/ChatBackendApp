@@ -1,6 +1,7 @@
 import { join } from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { config as dotenvConfig } from 'dotenv';
+
 dotenvConfig({ path: '.env' });
 
 export const databaseProviders: DataSourceOptions = {

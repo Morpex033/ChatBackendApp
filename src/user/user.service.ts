@@ -14,7 +14,7 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationDataResponseDto } from '../common/dto/pagination-data-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { EntityManager, Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {

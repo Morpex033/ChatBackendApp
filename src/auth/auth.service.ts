@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { AccountService } from '../account/account.service';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SingUpDto } from './dto/sing-up.dto';
 import { SingUpResponseDto } from './dto/sing-up-response.dto';
 import { SingInDto } from './dto/sing-in.dto';
