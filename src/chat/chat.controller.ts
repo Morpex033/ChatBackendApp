@@ -39,7 +39,7 @@ export class ChatController {
   @Post('/private/:id')
   public createPrivateChat(
     @Auth() auth: UserDto,
-    dto: CreateChatDto,
+    @Body()dto: CreateChatDto,
     @Param('id') id: string,
   ) {
     return this.chatService.createPrivateChat(auth, id, dto);
